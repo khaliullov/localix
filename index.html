@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>localix.ru</title>
+<style>
+    * {font-family: Roboto, sans-serif;}
+
+    html, body {padding: 0; margin: 0;  height: 100%;}
+    body { overflow: hidden;}
+    #frame{ width: 100%; height: calc(100% - 39px); border: 0;}
+    .tabs {display: block; list-style: none; background: #0d5aa7; padding: 5px 10px; margin: 0;}
+    .tabs li{display: inline-block;   padding: 5px 10px; border-radius: 4px; background: #3b4151;}
+    a.tab {color: #fff; text-decoration: none;}
+</style>
+</head>
+
+<body>
+    <ul class="tabs">
+        <li><a class="tab" target="main" href="https://blog.leandr.su">My blog</a></li>
+    </ul>
+
+    <iframe id="frame" name="main" src="https://blog.leandr.su"></iframe>
+</body>
+</html>
