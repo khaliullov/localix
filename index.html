@@ -2,18 +2,32 @@
 <html>
 <head>
 <title>localix.ru</title>
-<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
-<style>
-    video {
-       width: 640px;
-       height: 360px;
-    }
-</style>
+<script type="text/javascript" src="//bitmovin-a.akamaihd.net/bitmovin-player/stable/7/bitmovinplayer.js"></script>
 </head>
 
 <body>
-   <div>
-       <video data-dashjs-player autoplay src="https://tv.localix.ru/channel_01/stream.mpd" controls></video>
-   </div>
+<div id="player"></div>
+
+<script type="text/javascript">
+  var conf =   {
+    "key": "afbf7e7a-7b35-46e5-9467-8ab62c1e89b2",
+    "source": {
+      "dash": "https://tv.localix.ru/channel_01/manifest.mpd"
+    }
+  };
+  var player = bitmovin.player('player');
+
+  player.setup(conf).then(
+    function(value) {
+      // Success
+      console.log('Successfully created bitmovin player instance');
+    },
+    function(reason) {
+      // Error!
+      console.log('Error while creating bitmovin player instance');
+    }
+  );
+
+</script>
 </body>
 </html>
