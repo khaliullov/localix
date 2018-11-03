@@ -1,33 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>localix.ru</title>
-<script type="text/javascript" src="//bitmovin-a.akamaihd.net/bitmovin-player/stable/7/bitmovinplayer.js"></script>
+  <title>localix.ru</title>
+  <link href="https://unpkg.com/video.js/dist/video-js.css" rel="stylesheet">
 </head>
 
 <body>
-<div id="player"></div>
+  <video-js id="my_video_1" class="vjs-default-skin" controls preload="auto" width="640" height="268">
+    <source src="https://tv.localix.ru:8443/channel_01/stream.m3u8" type="application/x-mpegURL">
+  </video-js>
 
-<script type="text/javascript">
-  var conf =   {
-    "key": "afbf7e7a-7b35-46e5-9467-8ab62c1e89b2",
-    "source": {
-      "hls": "https://tv.localix.ru:8443/channel_01/stream.m3u8"
-    }
-  };
-  var player = bitmovin.player('player');
+  <script src="https://unpkg.com/video.js/dist/video.js"></script>
+  <script src="https://unpkg.com/@videojs/http-streaming/dist/videojs-http-streaming.js"></script>
 
-  player.setup(conf).then(
-    function(value) {
-      // Success
-      console.log('Successfully created bitmovin player instance');
-    },
-    function(reason) {
-      // Error!
-      console.log('Error while creating bitmovin player instance');
-    }
-  );
-
-</script>
+  <script>
+    var player = videojs('my_video_1');
+  </script>
 </body>
 </html>
