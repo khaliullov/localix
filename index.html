@@ -2,19 +2,96 @@
 <html>
 <head>
   <title>localix.ru</title>
-  <link href="https://unpkg.com/video.js/dist/video-js.css" rel="stylesheet">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+  <link href="vendor/video.js/video-js.css" rel="stylesheet">
+  <link href="vendor/videojs-playlist-ui/videojs-playlist-ui.css" rel="stylesheet">
+  <link href="css/examples.css" rel="stylesheet">
 </head>
 
 <body>
-  <video-js id="my_video_1" class="vjs-default-skin" controls preload="auto" width="640" height="268">
-    <source src="https://tv.localix.ru:8443/channel_01/stream.m3u8" type="application/x-mpegURL">
-  </video-js>
+  <div class="player-container">
+    <video-js id="my_video_1" class="vjs-default-skin video-js" controls preload="auto" width="580" height="300">
+      <source src="https://tv.localix.ru:8443/channel_01/stream.m3u8" type="application/x-mpegURL">
+    </video-js>
 
-  <script src="https://unpkg.com/video.js/dist/video.js"></script>
-  <script src="https://unpkg.com/@videojs/http-streaming/dist/videojs-http-streaming.js"></script>
+    <div class="vjs-playlist">
+      <!--
+        The contents of this element will be filled based on the
+        currently loaded playlist
+      -->
+    </div>
+  </div>
+
+  <script src="vendor/video.js/video.js"></script>
+  <script src="vendor/videojs-playlist/videojs-playlist.js"></script>
+  <script src="vendor/videojs-playlist-ui/videojs-playlist-ui.js"></script>
+
+  <script src="vendor/videojs-http-streaming/videojs-http-streaming.js"></script>
 
   <script>
     var player = videojs('my_video_1');
+    player.playlist([{
+      name: 'ПЕРВЫЙ КАНАЛ',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_01/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'ВТОРОЙ КАНАЛ',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_02/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'МАТЧ!',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_03/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'НТВ',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_04/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'ПЯТЫЙ КАНАЛ',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_05/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'РОССИЯ-К',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_06/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'РОССИЯ-24',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_07/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'КАРУСЕЛЬ',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_08/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'ОТР',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_09/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'ТВ Центр',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_10/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'РЕН ТВ',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_11/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'Спас',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_12/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'СТС',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_13/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'Домашний',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_14/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'ТВ3',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_15/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'Пятница',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_16/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'Звезда',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_17/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'Мир',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_18/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'ТНТ',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_19/stream.m3u8', type: 'application/x-mpegURL' }]
+    }, {
+      name: 'МУЗ ТВ',
+      sources: [{ src: 'https://tv.localix.ru:8443/channel_20/stream.m3u8', type: 'application/x-mpegURL' }]
+    }]);
+    player.playlistUi();
   </script>
 </body>
 </html>
