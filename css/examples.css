@@ -32,6 +32,7 @@ body {
 #my-custom-element {
   float: left;
   width: 300px;
+  height: 300px;
 }
 
 .vjs-playlist.vjs-playlist-horizontal {
