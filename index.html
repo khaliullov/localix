@@ -26,10 +26,18 @@
   <script src="vendor/videojs-playlist/videojs-playlist.js"></script>
   <script src="vendor/videojs-playlist-ui/videojs-playlist-ui.js"></script>
 
-  <script src="vendor/videojs-http-streaming/videojs-http-streaming.js"></script>
+  <!-- script src="vendor/videojs-http-streaming/videojs-http-streaming.js"></script -->
 
   <script>
-    var player = videojs('my_video_1');
+    var player = videojs('my_video_1', {
+      html5: {
+        hls: {
+          overrideNative: true
+        },
+        nativeAudioTracks: false,
+        nativeVideoTracks: false,
+      }
+    });
     player.playlist([{
       name: '01. ПЕРВЫЙ КАНАЛ',
       sources: [{ src: 'https://tv.localix.ru:8443/channel_01/stream.m3u8', type: 'application/x-mpegURL' }],
