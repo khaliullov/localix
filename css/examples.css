@@ -40,3 +40,9 @@ body {
   height: 120px;
   width: 600px;
 }
+
+.vjs-playlist-vertical img {
+  width: auto;
+  min-height: 54px;
+  float: right;
+}
