@@ -26,16 +26,13 @@
 
 <body>
   <div class="player-container">
-    <video-js id="player" class="vjs-default-skin video-js" controls autoplay preload="auto" width="580" height="300">
-      <source src="https://tv.localix.ru:8443/channel_01/stream.m3u8" type="application/x-mpegURL">
+    <video-js id="player" class="vjs-default-skin video-js" controls autoplay loop preload="auto" width="580" height="300">
     </video-js>
 
-    <div class="playlist-holder"><div class="vjs-playlist">
-      <!--
-        The contents of this element will be filled based on the
-        currently loaded playlist
-      -->
-    </div></div>
+    <div class="playlist-holder">
+      <div class="vjs-playlist">
+      </div>
+    </div>
   </div>
 
     <p id="version"></p>
@@ -43,8 +40,13 @@
     document.querySelector('#version').innerText = `hls.js version: ${Hls.version}, engine supported: ${p2pml.hlsjs.Engine.isSupported()}`;
     var engine = new p2pml.hlsjs.Engine();
     p2pml.hlsjs.initVideoJsHlsJsPlugin();
+    // setup beforeinitialize hook
     var player = videojs('#player', {
       autoplay: true,
+      controls: true,
+      loop: true,
+      muted: true,
+      preload: 'auto',
       html5: {
         hlsjsConfig: {
           debug: false,
@@ -54,6 +56,26 @@
         }
       }
     });
+    videojs.Html5Hlsjs.addHook('beforeinitialize', (videojsPlayer, hlsjsInstance) => {
+      hlsjsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
+        // player.play();
+      });
+      hlsjsInstance.on(Hls.Events.ERROR, function (event, data) {
+        if (data.fatal) {
+          switch(data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              console.log("fatal network error encountered, try to recover");
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              hlsjsInstance.recoverMediaError();
+              break;
+          }
+        }
+      });
+    });
+    player.reloadSourceOnError();
+    player.src({ src: 'https://tv.localix.ru:8443/channel_01/stream.m3u8',
+                 type: 'application/x-mpegURL' });
     player.playlist([{
       name: '01. ПЕРВЫЙ КАНАЛ',
       sources: [{ src: 'https://tv.localix.ru:8443/channel_01/stream.m3u8',
