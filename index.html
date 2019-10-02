@@ -6,14 +6,21 @@
     <meta charset="UTF-8">
 </head>
 
-<link href="https://vjs.zencdn.net/7.2/video-js.min.css" rel="stylesheet">
+<link href="vendor/videojs/7.6/video-js.css" rel="stylesheet">
 <link href="vendor/videojs-playlist-ui/videojs-playlist-ui.css" rel="stylesheet">
+
 <link href="css/examples.css" rel="stylesheet">
-<script src="https://vjs.zencdn.net/7.2/video.min.js"></script>
+
+<script src="vendor/videojs/7.6/video.js"></script>
 <!-- increase browser support with MSE polyfill -->
-<script src="https://unpkg.com/videojs-contrib-media-sources@4.4.4/dist/videojs-contrib-media-sources.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/cdnbye@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/cdnbye@latest/dist/videojs-contrib-hlsjs.min.js"></script>
+<script src="vendor/videojs-contrib-media-sources/4.4.4/videojs-contrib-media-sources.min.js"></script>
+
+<script src="vendor/hls/hls.js"></script>
+<script src="vendor/videojs-hlsjs/videojs-hlsjs-plugin.js"></script>
+
+<script src="vendor/p2p-media-loader/p2p-media-loader-core.min.js"></script>
+<script src="vendor/p2p-media-loader/p2p-media-loader-hlsjs.min.js"></script>
+
 <script src="vendor/videojs-playlist/videojs-playlist.js"></script>
 <script src="vendor/videojs-playlist-ui/videojs-playlist-ui.js"></script>
 
@@ -32,26 +39,18 @@
   </div>
 
     <p id="version"></p>
-    <h3>download info:</h3>
-    <p id="info"></p>
   <script>
-    document.querySelector('#version').innerText = `hls.js version: ${Hls.version}  cdnbye version: ${Hls.engineVersion}`;
+    document.querySelector('#version').innerText = `hls.js version: ${Hls.version}, engine supported: ${p2pml.hlsjs.Engine.isSupported()}`;
+    var engine = new p2pml.hlsjs.Engine();
+    p2pml.hlsjs.initVideoJsHlsJsPlugin();
     var player = videojs('#player', {
       autoplay: true,
       html5: {
         hlsjsConfig: {
           debug: false,
           // Other hlsjsConfig options provided by hls.js
-          p2pConfig: {
-            logLevel: true,
-            live: true,        // set to true in live mode
-            wsSignalerAddr: 'wss://tv.localix.ru/gosignaler',
-            getStats: function (totalP2PDownloaded, totalP2PUploaded, totalHTTPDownloaded) {
-              var total = totalHTTPDownloaded + totalP2PDownloaded;
-              document.querySelector('#info').innerText = `p2p ratio: ${Math.round(totalP2PDownloaded/total*100)}%, saved traffic: ${totalP2PDownloaded}KB, uploaded: ${totalP2PUploaded}KB`;
-            },
-            // Other p2pConfig options provided by CDNBye
-          }
+          liveSyncDurationCount: 7,
+          loader: engine.createLoaderClass()
         }
       }
     });
