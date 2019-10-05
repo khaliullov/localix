@@ -1,9 +1,9 @@
-/*! @name videojs-playlist @version 4.2.6 @license Apache-2.0 */
+/*! @name videojs-playlist @version 4.3.1 @license Apache-2.0 */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('video.js')) :
   typeof define === 'function' && define.amd ? define(['video.js'], factory) :
-  (global.videojsPlaylist = factory(global.videojs));
-}(this, (function (videojs) { 'use strict';
+  (global = global || self, global.videojsPlaylist = factory(global.videojs));
+}(this, function (videojs) { 'use strict';
 
   videojs = videojs && videojs.hasOwnProperty('default') ? videojs['default'] : videojs;
 
@@ -121,13 +121,18 @@
 
   var playItem = function playItem(player, item) {
     var replay = !player.paused() || player.ended();
-    player.trigger('beforeplaylistitem', item);
+    player.trigger('beforeplaylistitem', item.originalValue || item);
+
+    if (item.playlistItemId_) {
+      player.playlist.currentPlaylistItemId_ = item.playlistItemId_;
+    }
+
     player.poster(item.poster || '');
     player.src(item.sources);
     clearTracks(player);
     player.ready(function () {
       (item.textTracks || []).forEach(player.addRemoteTextTrack.bind(player));
-      player.trigger('playlistitem', item);
+      player.trigger('playlistitem', item.originalValue || item);
 
       if (replay) {
         var playPromise = player.play(); // silence error when a pause interrupts a play request
@@ -144,6 +149,93 @@
   };
 
   /**
+   * Returns whether a playlist item is an object of any kind, excluding null.
+   *
+   * @private
+   *
+   * @param {Object}
+   *         value to be checked
+   *
+   * @return {boolean}
+   *          The result
+   */
+
+  var isItemObject = function isItemObject(value) {
+    return !!value && typeof value === 'object';
+  };
+  /**
+   * Look through an array of playlist items and transform any primitive
+   * as well as null values to objects. This method also adds a property
+   * to the transformed item containing original value passed in an input list.
+   *
+   * @private
+   *
+   * @param  {Array} arr
+   *         An array of playlist items
+   *
+   * @return {Array}
+   *         A new array with transformed items
+   */
+
+
+  var transformPrimitiveItems = function transformPrimitiveItems(arr) {
+    var list = [];
+    var tempItem;
+    arr.forEach(function (item) {
+      if (!isItemObject(item)) {
+        tempItem = Object(item);
+        tempItem.originalValue = item;
+      } else {
+        tempItem = item;
+      }
+
+      list.push(tempItem);
+    });
+    return list;
+  };
+  /**
+   * Generate a unique id for each playlist item object. This id will be used to determine
+   * index of an item in the playlist array for cases where there are multiple items with
+   * the same source set.
+   *
+   * @private
+   *
+   * @param  {Array} arr
+   *         An array of playlist items
+   */
+
+
+  var generatePlaylistItemId = function generatePlaylistItemId(arr) {
+    var guid = 1;
+    arr.forEach(function (item) {
+      item.playlistItemId_ = guid++;
+    });
+  };
+  /**
+   * Look through an array of playlist items for a specific playlist item id.
+   *
+   * @private
+   * @param   {Array} list
+   *          An array of playlist items to look through
+   *
+   * @param   {number} currentItemId
+   *          The current item ID.
+   *
+   * @return  {number}
+   *          The index of the playlist item or -1 if not found
+   */
+
+
+  var indexInPlaylistItemIds = function indexInPlaylistItemIds(list, currentItemId) {
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].playlistItemId_ === currentItemId) {
+        return i;
+      }
+    }
+
+    return -1;
+  };
+  /**
    * Given two sources, check to see whether the two sources are equal.
    * If both source urls have a protocol, the protocols must match, otherwise, protocols
    * are ignored.
@@ -158,6 +250,7 @@
    * @return {boolean}
    *         The result
    */
+
 
   var sourceEquals = function sourceEquals(source1, source2) {
     var src1 = source1;
@@ -311,13 +404,25 @@
       if (Array.isArray(newList)) {
         // @todo - Simplify this to `list.slice()` for v5.
         var previousPlaylist = Array.isArray(list) ? list.slice() : null;
-        list = newList.slice(); // Mark the playlist as changing during the duringplaylistchange lifecycle.
+        var nextPlaylist = newList.slice();
+        list = nextPlaylist.slice(); // Transform any primitive and null values in an input list to objects
+
+        if (list.filter(function (item) {
+          return isItemObject(item);
+        }).length !== list.length) {
+          list = transformPrimitiveItems(list);
+        } // Add unique id to each playlist item. This id will be used
+        // to determine index in cases where there are more than one
+        // identical sources in the playlist.
+
+
+        generatePlaylistItemId(list); // Mark the playlist as changing during the duringplaylistchange lifecycle.
 
         changing = true;
         player.trigger({
           type: 'duringplaylistchange',
           nextIndex: newIndex,
-          nextPlaylist: list,
+          nextPlaylist: nextPlaylist,
           previousIndex: playlist.currentIndex_,
           // @todo - Simplify this to simply pass along `previousPlaylist` for v5.
           previousPlaylist: previousPlaylist || []
@@ -341,9 +446,12 @@
           }, 0);
         }
       } // Always return a shallow clone of the playlist list.
+      //  We also want to return originalValue if any item in the list has it.
 
 
-      return list.slice();
+      return list.map(function (item) {
+        return item.originalValue || item;
+      }).slice();
     }; // On a new source, if there is no current item, disable auto-advance.
 
 
@@ -356,6 +464,7 @@
     playlist.player_ = player;
     playlist.autoadvance_ = {};
     playlist.repeat_ = false;
+    playlist.currentPlaylistItemId_ = null;
     /**
      * Get or set the current item in the playlist.
      *
@@ -372,15 +481,38 @@
       // If the playlist is changing, only act as a getter.
       if (changing) {
         return playlist.currentIndex_;
-      }
+      } // Act as a setter when the index is given and is a valid number.
+
 
       if (typeof index === 'number' && playlist.currentIndex_ !== index && index >= 0 && index < list.length) {
         playlist.currentIndex_ = index;
         playItem(playlist.player_, list[playlist.currentIndex_]);
-      } else {
-        playlist.currentIndex_ = playlist.indexOf(playlist.player_.currentSrc() || '');
+        return playlist.currentIndex_;
       }
 
+      var src = playlist.player_.currentSrc() || ''; // If there is a currentPlaylistItemId_, validate that it matches the
+      // current source URL returned by the player. This is sufficient evidence
+      // to suggest that the source was set by the playlist plugin. This code
+      // exists primarily to deal with playlists where multiple items have the
+      // same source.
+
+      if (playlist.currentPlaylistItemId_) {
+        var indexInItemIds = indexInPlaylistItemIds(list, playlist.currentPlaylistItemId_);
+        var item = list[indexInItemIds]; // Found a match, this is our current index!
+
+        if (item && Array.isArray(item.sources) && indexInSources([item], src) > -1) {
+          playlist.currentIndex_ = indexInItemIds;
+          return playlist.currentIndex_;
+        } // If this does not match the current source, null it out so subsequent
+        // calls can skip this step.
+
+
+        playlist.currentPlaylistItemId_ = null;
+      } // Finally, if we don't have a valid, current playlist item ID, we can
+      // auto-detect it based on the player's current source URL.
+
+
+      playlist.currentIndex_ = playlist.indexOf(src);
       return playlist.currentIndex_;
     };
     /**
@@ -513,8 +645,10 @@
         return;
       }
 
+      var newItem = playlist.currentItem(0);
+
       if (list.length) {
-        return list[playlist.currentItem(0)];
+        return list[newItem].originalValue || list[newItem];
       }
 
       playlist.currentIndex_ = -1;
@@ -532,8 +666,10 @@
         return;
       }
 
+      var newItem = playlist.currentItem(playlist.lastIndex());
+
       if (list.length) {
-        return list[playlist.currentItem(playlist.lastIndex())];
+        return list[newItem].originalValue || list[newItem];
       }
 
       playlist.currentIndex_ = -1;
@@ -554,7 +690,8 @@
       var index = playlist.nextIndex();
 
       if (index !== playlist.currentIndex_) {
-        return list[playlist.currentItem(index)];
+        var newItem = playlist.currentItem(index);
+        return list[newItem].originalValue || list[newItem];
       }
     };
     /**
@@ -573,7 +710,8 @@
       var index = playlist.previousIndex();
 
       if (index !== playlist.currentIndex_) {
-        return list[playlist.currentItem(index)];
+        var newItem = playlist.currentItem(index);
+        return list[newItem].originalValue || list[newItem];
       }
     };
     /**
@@ -745,7 +883,7 @@
     return playlist;
   }
 
-  var version = "4.2.6";
+  var version = "4.3.1";
 
   var registerPlugin = videojs.registerPlugin || videojs.plugin;
   /**
@@ -768,4 +906,4 @@
 
   return plugin;
 
-})));
+}));

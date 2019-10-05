@@ -1,4 +1,4 @@
-/*! @name videojs-playlist-ui @version 3.5.2 @license Apache-2.0 */
+/*! @name videojs-playlist-ui @version 3.6.0 @license Apache-2.0 */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('global/document'), require('video.js')) :
   typeof define === 'function' && define.amd ? define(['global/document', 'video.js'], factory) :
@@ -14,7 +14,7 @@
     subClass.__proto__ = superClass;
   }
 
-  var version = "3.5.2";
+  var version = "3.6.0";
 
   var dom = videojs.dom || videojs;
   var registerPlugin = videojs.registerPlugin || videojs.plugin; // Array#indexOf analog for IE8

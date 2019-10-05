@@ -1,4 +1,4 @@
-/*! @name videojs-playlist-ui @version 3.5.2 @license Apache-2.0 */
+/*! @name videojs-playlist-ui @version 3.6.0 @license Apache-2.0 */
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
@@ -12,7 +12,7 @@ function _inheritsLoose(subClass, superClass) {
   subClass.__proto__ = superClass;
 }
 
-var version = "3.5.2";
+var version = "3.6.0";
 
 var dom = videojs.dom || videojs;
 var registerPlugin = videojs.registerPlugin || videojs.plugin; // Array#indexOf analog for IE8
